@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">MovieApp</string>
     <string name="search">Search</string>
     <string name="retry">Click To Retry</string>
     <string name="no_favourites">No Favourites</string>
