@@ -1,4 +1,4 @@
-package com.imran.movieapp.dependencies.modules
+package com.imran.myapplication.dependencies.modules
 
 import com.imran.myapplication.db.MovieDatabase
 import com.imran.myapplication.retrofit.APIInterface

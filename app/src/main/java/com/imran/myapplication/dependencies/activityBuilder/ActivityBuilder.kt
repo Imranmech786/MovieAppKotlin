@@ -1,8 +1,8 @@
 package com.imran.myapplication.dependencies.activityBuilder
 
-import com.imran.movieapp.dependencies.modules.FavouriteMovieModule
 import com.imran.myapplication.activity.DetailActivity
 import com.imran.myapplication.activity.MainActivity
+import com.imran.myapplication.dependencies.modules.FavouriteMovieModule
 import com.imran.myapplication.dependencies.modules.MainActivityModule
 import com.imran.myapplication.dependencies.modules.MovieDetailModule
 import com.imran.myapplication.dependencies.modules.TopRatedMovieModule
