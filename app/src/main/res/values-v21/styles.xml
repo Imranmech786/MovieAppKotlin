@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="toolbar_theme">
+        <item name="android:theme">@style/toolbar_item_color</item>
+        <item name="android:colorControlNormal">@color/toolbar_item_color</item>
+        <item name="contentInsetStart">0dp</item>
+    </style>
+</resources>
