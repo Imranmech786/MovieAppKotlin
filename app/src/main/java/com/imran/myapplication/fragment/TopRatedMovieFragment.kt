@@ -18,9 +18,11 @@ import com.imran.myapplication.adapter.TopRatedMovieAdapter
 import com.imran.myapplication.model.Movie
 import com.imran.myapplication.navigator.BaseNavigator
 import com.imran.myapplication.navigator.MainActivityNavigator
+import com.imran.myapplication.utils.Network
 import com.imran.myapplication.utils.StateData
 import com.imran.myapplication.viewmodel.TopRatedMovieViewModel
 import dagger.android.support.DaggerFragment
+import kotlinx.android.synthetic.main.progressbar_layout.*
 import kotlinx.android.synthetic.main.top_rated_fragment.*
 import javax.inject.Inject
 
@@ -48,16 +50,26 @@ class TopRatedMovieFragment : DaggerFragment(), MainActivityNavigator, BaseNavig
         val gridLayoutManager = GridLayoutManager(activity, 2)
         recyclerview.layoutManager = gridLayoutManager
         setRecyclerViewScrollListener(gridLayoutManager)
+        requestForTopRatedMovie()
+        retry.setText(mContext?.getString(R.string.retry))
+        retry.setOnClickListener { requestForTopRatedMovie() }
 
+    }
+
+    private fun requestForTopRatedMovie() {
+        if (Network.isConnected(mContext?.getApplicationContext())) {
+            retry.visibility = View.GONE
+            mTopRatedMovieViewModel.loadTopRatedMovie(mPageNumber)
+        } else {
+            retry.visibility = View.VISIBLE
+            Toast.makeText(mContext, mContext?.getString(R.string.check_internet_connection), Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.top_rated_fragment, container, false)
 
         mTopRatedMovieViewModel.navigator = this
-
-
-        mTopRatedMovieViewModel.loadTopRatedMovie(mPageNumber)
 
         /*Observing Movie List Live Data*/
         mTopRatedMovieViewModel.listMutableLiveData.observe(this,

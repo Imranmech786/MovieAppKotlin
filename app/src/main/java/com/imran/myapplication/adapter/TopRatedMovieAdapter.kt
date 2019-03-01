@@ -40,6 +40,7 @@ class TopRatedMovieAdapter(
         val movie = mList!![pos]
         Picasso.get().load(IMAGE_BASE_URL + movie.moviePoster)
             .placeholder(R.color.app_background)
+            .error(R.color.colorPrimary)
             .into(holder.movie_image)
 
         holder.movie_image.setOnClickListener {

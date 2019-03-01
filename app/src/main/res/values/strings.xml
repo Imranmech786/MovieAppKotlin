@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">My Application</string>
     <string name="search">Search</string>
+    <string name="retry">Click To Retry</string>
+    <string name="no_favourites">No Favourites</string>
+    <string name="check_internet_connection">Check your Internet Connection</string>
 </resources>

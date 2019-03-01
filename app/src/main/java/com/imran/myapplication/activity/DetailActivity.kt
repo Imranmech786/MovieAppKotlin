@@ -2,7 +2,10 @@ package com.imran.myapplication.activity
 
 import android.arch.lifecycle.Observer
 import android.os.Bundle
+import android.support.design.widget.Snackbar
+import android.support.v4.content.ContextCompat
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import com.imran.myapplication.R
 import com.imran.myapplication.model.Movie
@@ -11,15 +14,20 @@ import com.imran.myapplication.utils.StateData
 import com.imran.myapplication.viewmodel.MovieDetailViewModel
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_detail.*
+import kotlinx.android.synthetic.main.progressbar_layout.*
 import javax.inject.Inject
 
-class DetailActivity : BaseActivity() {
+class DetailActivity : BaseActivity(), View.OnClickListener {
+
 
     @Inject
     lateinit var movieDetailViewModel: MovieDetailViewModel
 
     override fun getResourceId(): Int {
         return R.layout.activity_detail; }
+
+    private var movieId: Int = 0
+    private var movie: Movie? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,41 +38,47 @@ class DetailActivity : BaseActivity() {
 
         val bundle = intent.extras
         if (bundle != null) {
-            val id = bundle.getInt("id")
-            movieDetailViewModel.loadMovieDetail(id)
+            movieId = bundle.getInt("id")
+            progress_bar.visibility = View.VISIBLE
+            requestForMovieDetail()
         }
+        fab.setOnClickListener(this)
+        retry.setOnClickListener(this)
     }
+
 
     private fun getObserver(): Observer<StateData<Movie>> {
         return Observer { movieStateData ->
             if (movieStateData == null) return@Observer
             when (movieStateData.status) {
                 StateData.DataStatus.SUCCESS -> {
-                    progress_bar.setVisibility(View.GONE)
-                    main_layout.setVisibility(View.VISIBLE)
-                    val movie = movieStateData.data
+                    setVisibility(View.GONE, View.VISIBLE)
+                    movie = movieStateData.data
                     updateData(movie)
                 }
                 StateData.DataStatus.ERROR -> {
-                    progress_bar.setVisibility(View.GONE)
-                    main_layout.setVisibility(View.GONE)
+                    setVisibility(View.GONE, View.GONE)
                     if (movieStateData.error != null && movieStateData.error!!.message != null) {
                         val e = movieStateData.error
                         Toast.makeText(this@DetailActivity, e?.message, Toast.LENGTH_SHORT).show()
                     }
                 }
                 StateData.DataStatus.LOADING -> {
-                    progress_bar.setVisibility(View.VISIBLE)
-                    main_layout.setVisibility(View.GONE)
+                    setVisibility(View.VISIBLE, View.GONE)
                 }
                 StateData.DataStatus.COMPLETE -> {
                     /*No Results Found*/
-                    progress_bar.setVisibility(View.GONE)
-                    main_layout.setVisibility(View.VISIBLE)
+                    setVisibility(View.GONE, View.VISIBLE)
                     Toast.makeText(this@DetailActivity, "No Results Found", Toast.LENGTH_SHORT).show()
                 }
             }
         }
+    }
+
+
+    fun setVisibility(progressVisibility: Int, mainVisibility: Int) {
+        progress_bar.setVisibility(progressVisibility)
+        main_layout.setVisibility(mainVisibility)
     }
 
     fun updateData(movie: Movie?) {
@@ -76,5 +90,43 @@ class DetailActivity : BaseActivity() {
             .into(poster_image)
         Picasso.get().load(Constants.IMAGE_BASE_URL + movie.moviePoster)
             .into(movie_image)
+        /*Observing Boolean Live Data for Added to Favourites*/
+        movieDetailViewModel.isAddedToFavourite.observe(this, getAddedToFavouritesObserver())
+
     }
+
+    private fun getAddedToFavouritesObserver(): Observer<Boolean> {
+        return Observer { isFav ->
+            if (isFav != null) {
+                val message = if (isFav) "Added to Favourites" else "Removed from Favourites"
+                showSnackBar(message)
+            }
+        }
+    }
+
+    private fun showSnackBar(message: String) {
+        val snackbar = Snackbar.make(main_layout, message, Snackbar.LENGTH_SHORT)
+        val sbView = snackbar.view
+        val textView = sbView.findViewById<View>(android.support.design.R.id.snackbar_text) as TextView
+        textView.setTextColor(ContextCompat.getColor(this, R.color.white))
+        snackbar.show()
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.getId()) {
+            R.id.fab -> movieDetailViewModel.handleFavourites(movie!!)
+            R.id.retry -> requestForMovieDetail()
+        }
+    }
+
+    private fun requestForMovieDetail() {
+        if (com.imran.myapplication.utils.Network.isConnected(applicationContext)) {
+            retry.visibility = View.GONE
+            movieDetailViewModel.loadMovieDetail(movieId)
+        } else {
+            retry.visibility = View.VISIBLE
+            Toast.makeText(this, getString(R.string.check_internet_connection), Toast.LENGTH_SHORT).show()
+        }
+    }
+
 }

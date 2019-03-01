@@ -17,6 +17,7 @@ import com.imran.myapplication.navigator.BaseNavigator
 import com.imran.myapplication.viewmodel.FavouriteMovieViewModel
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.favourite_movie_fragment.*
+import kotlinx.android.synthetic.main.progressbar_layout.*
 import javax.inject.Inject
 
 class FavouriteMovieFragment : DaggerFragment(), BaseNavigator {
@@ -35,6 +36,7 @@ class FavouriteMovieFragment : DaggerFragment(), BaseNavigator {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         recyclerview.setLayoutManager(GridLayoutManager(mContext, 2))
+        retry.setText(mContext?.getString(R.string.no_favourites))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -43,6 +45,8 @@ class FavouriteMovieFragment : DaggerFragment(), BaseNavigator {
 
         favouriteMovieViewModel.listMutableLiveData.observe(this,
             Observer<List<Movie>> { movieList ->
+                val visibility = movieList == null || movieList.isEmpty()
+                retry.setVisibility(if (visibility) View.VISIBLE else View.GONE)
                 if (topRatedMovieAdapter == null) {
                     topRatedMovieAdapter =
                         TopRatedMovieAdapter(
@@ -90,5 +94,11 @@ class FavouriteMovieFragment : DaggerFragment(), BaseNavigator {
             favouriteMovieViewModel.getFavMovieList()
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        favouriteMovieViewModel.getFavMovieList()
+    }
+
 
 }

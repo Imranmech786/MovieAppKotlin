@@ -1,5 +1,6 @@
 package com.imran.myapplication.viewmodel
 
+import android.arch.lifecycle.MutableLiveData
 import com.imran.myapplication.BuildConfig
 import com.imran.myapplication.db.MovieDatabase
 import com.imran.myapplication.model.Movie
@@ -15,6 +16,9 @@ class MovieDetailViewModel(apiInterface: APIInterface?, movieDatabase: MovieData
     BaseViewModel<BaseNavigator>(apiInterface, movieDatabase, executor) {
 
     val listMutableLiveData: StateLiveData<Movie> = StateLiveData()
+    val isAddedToFavourite = MutableLiveData<Boolean>()
+
+
 
     fun loadMovieDetail(movie_id: Int) {
         listMutableLiveData.postLoading()
@@ -34,4 +38,19 @@ class MovieDetailViewModel(apiInterface: APIInterface?, movieDatabase: MovieData
                 }
             })
     }
+
+    fun handleFavourites(movie: Movie) {
+        executor?.execute(Runnable {
+            if (movieDatabase?.movieDAO()?.loadMovie(movie.movieTitle!!) == null) {
+                movie.isFavourite=(true)
+                movieDatabase!!.movieDAO().saveMovieAsFavourite(movie)
+                isAddedToFavourite.postValue(true)
+            } else {
+                movie.isFavourite=(false)
+                movieDatabase!!.movieDAO().removeMovieFromFavourites(movie)
+                isAddedToFavourite.postValue(false)
+            }
+        })
+    }
+
 }
