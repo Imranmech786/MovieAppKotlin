@@ -19,7 +19,6 @@ class TopRatedMovieViewModel(apiInterface: APIInterface?, movieDatabase: MovieDa
 
     val isPaginationLoadingLiveData = MutableLiveData<Boolean>()
     val listMutableLiveData = StateLiveData<List<Movie>>()
-    val isAddedToFavourite = MutableLiveData<Boolean>()
 
     fun loadTopRatedMovie(mPageNumber: Int) {
         setLoadingLiveData(mPageNumber)
@@ -43,20 +42,6 @@ class TopRatedMovieViewModel(apiInterface: APIInterface?, movieDatabase: MovieDa
                     removeLoadingLiveData(mPageNumber, t)
                 }
             })
-    }
-
-    fun handleFavourites(movie: Movie) {
-        executor?.execute {
-            if (movieDatabase?.movieDAO()?.loadMovie(movie.movieTitle!!) == null) {
-                movie.isFavourite = (true)
-                movieDatabase!!.movieDAO().saveMovieAsFavourite(movie)
-                isAddedToFavourite.postValue(true)
-            } else {
-                movie.isFavourite = (false)
-                movieDatabase!!.movieDAO().removeMovieFromFavourites(movie)
-                isAddedToFavourite.postValue(false)
-            }
-        }
     }
 
     fun setLoadingLiveData(mPageNumber: Int) {
