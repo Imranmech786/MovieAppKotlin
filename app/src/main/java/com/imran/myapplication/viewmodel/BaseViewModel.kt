@@ -8,10 +8,6 @@ import com.imran.myapplication.retrofit.APIInterface
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.Executor
 
-/**
- * Created by kautilya on 01/02/18.
- */
-
 abstract class BaseViewModel<N> : ViewModel {
 
     var navigator: N? = null
